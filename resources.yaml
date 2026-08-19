@@ -1,0 +1,25 @@
+# LocalStack AWS Resources Definition
+# This file defines the baseline AWS resources provisioned on startup.
+# Newly discovered resources requested by Spring apps can also be auto-added here.
+
+version: "1.0"
+region: "eu-west-1"
+
+services:
+  s3:
+    buckets: []
+  sqs:
+    queues:
+      - name: test-dge-transylvania-stream-status
+        attributes:
+          VisibilityTimeout: '30'
+  sns:
+    topics: []
+  dynamodb:
+    tables: []
+  secretsmanager:
+    secrets: []
+  ssm:
+    parameters: []
+  kms:
+    keys: []

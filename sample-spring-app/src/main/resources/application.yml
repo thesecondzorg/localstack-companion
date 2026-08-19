@@ -1,0 +1,9 @@
+server:
+  port: 8090
+
+# AWS endpoint points directly to LocalStack Companion transparent proxy on :4566
+aws:
+  endpoint: http://localhost:4566
+  region: us-east-1
+  access-key: test
+  secret-key: test
