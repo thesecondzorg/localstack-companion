@@ -44,104 +44,94 @@ LocalStack Companion exposes port `4566` (the standard AWS endpoint port). When 
 
 ---
 
-## 3. Key Features & Visual Guide
+## 3. Visual Tour & Interface Walkthrough
 
-### 3.1. Interactive Resource Manager & Data Editor
+### 3.1. Main Dashboard: Active AWS Resources
 
-The **Interactive Resource Manager** modal allows developers to directly interact with, test, and inspect data inside LocalStack resources without leaving the browser.
+The main dashboard gives you an instant, unified view of all provisioned cloud resources across multiple AWS services in your configured region (`eu-west-1`):
+
+![Active LocalStack AWS Resources Dashboard](images/dashboard_main_view.png)
+
+#### Highlights:
+* **Real-Time Resource Cards**: Visual cards categorize your resources across **SQS Queues**, **S3 Buckets**, **DynamoDB Tables**, **SNS Topics**, **Secrets Manager**, and **SSM Parameters**.
+* **Live Status & Counters**: Each item displays live status badges and counters (e.g. `1 msgs`, `3 msgs` in SQS queues, or `0 items` in DynamoDB tables).
+* **Direct Management**:
+  * **Manage**: Opens the [Interactive Resource Manager](#33-interactive-resource-manager--data-editor) to push test messages, inspect files, or edit database items.
+  * **Delete (Trash Icon)**: Removes the resource from LocalStack and optionally prunes it from `resources.yaml`.
+  * **+ Add to Service**: Fast manual creation modal for any AWS service without writing code.
+* **Top Navigation & Controls**:
+  * **LocalStack Active Badge**: Real-time heartbeat indicator confirming LocalStack engine health.
+  * **Auto-Create Toggle**: Switch between interactive review mode and automatic self-healing.
+  * **Quick Refresh & Documentation**: Instant sync trigger and quick reference modals.
+
+---
+
+### 3.2. Pending Requests & 1-Click Provisioning
+
+When a microservice (e.g. Spring Boot) makes an AWS SDK call to a resource that hasn't been created yet, LocalStack Companion intercepts the error and presents an actionable prompt:
+
+![Pending Requests - Missing Resource Detected](images/pending_actions_view.png)
+
+#### How It Operates:
+1. **Error Detection**: In the screenshot above, a Spring Boot app attempted a `SendMessage` operation on `my-queue2` and `my-queue3`, triggering `QueueDoesNotExist` (400).
+2. **Alert Notification**: A prominent alert banner highlights `3 Missing Resource Requests Detected` with the exact timestamp and target operation.
+3. **Suggested Configuration Preview**: Companion automatically synthesizes the appropriate JSON specification (e.g., Visibility Timeout, Retention, Partition Keys).
+4. **1-Click Actions**:
+   * **Provision & Add to YAML**: Immediately creates the resource inside LocalStack and appends it to `resources.yaml`.
+   * **Dismiss**: Clears the notification if the request was unexpected or a transient error.
+5. **Zero App Restarts**: As soon as you click **Provision & Add to YAML**, re-running the failed API call from your microservice succeeds immediately!
+
+> [!TIP]
+> **Auto-Create Mode**: When enabled (`Auto-Create: ON` in the top bar), Companion bypasses the pending prompt and immediately provisions the missing resource behind the scenes, ensuring microservices start up without interruption.
+
+---
+
+### 3.3. Interactive Resource Manager & Data Editor
+
+Clicking **Manage** on any resource card launches the **Interactive Resource Manager** modal for direct data inspection and manual event triggering.
 
 ![Interactive Resource Manager - SQS Message Sender](images/sqs_modal_manager.png)
 
-#### Capabilities per Service:
-* **SQS Queues**:
-  * **Send Test Messages**: Enter JSON or plain text payloads and push them directly to any active queue with one click.
-  * **Message Inspector**: Peek at recent messages waiting in the queue with their Message IDs and timestamps.
-  * **Purge Queue**: Clear all accumulated messages in one click.
-* **S3 Buckets**:
-  * **File Uploads**: Upload JSON, text, or binary files with custom object keys.
-  * **Object Browser & File Preview**: Browse files stored in buckets and preview text/JSON contents directly in the modal.
-  * **Object Deletion**: Clean up test files individually.
-* **DynamoDB Tables**:
-  * **Table Scanner**: Scan and view existing table records in formatted JSON.
-  * **Insert Item**: Inject test records directly into DynamoDB tables with JSON validation.
-* **Secrets Manager & SSM Parameter Store**:
-  * **Live Value Editor**: View, toggle visibility (reveal/hide), and edit secret strings or configuration values with instant synchronization to both LocalStack and `resources.yaml`.
-* **SNS Topics**:
-  * **Publish Notifications**: Broadcast events to test multi-subscriber queues and workflows.
+#### Capabilities by Service:
+
+#### 📬 SQS Queues
+* **Send Message**: Compose structured JSON or plain text payloads and push them directly to the queue with the **"Push to SQS Queue"** button.
+* **Messages Tab**: Peek at in-flight or waiting messages, inspect Message IDs, and read payloads.
+* **Purge Queue**: Clear accumulated test messages with a single click.
+
+#### 🪣 S3 Buckets
+* **File Upload**: Upload JSON, text, or binary files with specified object keys.
+* **Object Browser**: List all stored objects with file sizes.
+* **Inline Preview**: Inspect and read file contents directly in the modal.
+* **Object Deletion**: Remove individual objects cleanly.
+
+#### 🗄️ DynamoDB Tables
+* **Item Scanner**: Scan and view current table records in formatted JSON.
+* **Insert Item**: Inject new records into the table with schema validation.
+
+#### 🔐 Secrets Manager & ⚙️ SSM Parameters
+* **Live Value Editor**: View and update secret strings or parameter values.
+* **Reveal/Hide Toggle**: Mask sensitive secrets while screen-sharing or presenting.
+* **Automatic Config Sync**: Edits are persisted directly into `resources.yaml`.
+
+#### 📢 SNS Topics
+* **Publish Events**: Broadcast test events to topics to trigger connected SQS subscriptions or downstream workers.
 
 ---
 
-### 3.2. Real-Time Resource Dashboard
-
-The main dashboard gives an instant visual overview of all active AWS services in the current region (e.g. `eu-west-1` or `us-east-1`):
-
-```
-+---------------------------------------------------------------------------------------------------------+
-| (☁) LocalStack Companion  Proxy :4566       ● LocalStack Active   ⚡ Auto-Create: OFF   (⟳)  [+ Add Resource] |
-+---------------------------------------------------------------------------------------------------------+
-| [Resources]   [Pending Requests (3)]   [Traffic Inspector]   [resources.yaml]                           |
-+---------------------------------------------------------------------------------------------------------+
-|                                                                                                         |
-|  Active LocalStack AWS Resources (eu-west-1)                                                            |
-|  Manage your AWS resources in real time. Click Manage to send messages, upload files, or edit data.     |
-|                                                                                                         |
-|  +---------------------------+  +---------------------------+  +---------------------------+            |
-|  | [SQS Queues]      3 items |  | [S3 Buckets]      0 items |  | [DynamoDB]         1 item |            |
-|  |---------------------------|  |---------------------------|  |---------------------------|            |
-|  | (✓) test-dge-... [1 msgs] |  | No active S3 buckets      |  | (✓) QuarkusFruits [0 items|            |
-|  |     [Manage] [🗑]         |  |                           |  |     [Manage] [🗑]         |            |
-|  | (✓) my-queue2    [3 msgs] |  |                           |  |                           |            |
-|  |     [Manage] [🗑]         |  |                           |  |                           |            |
-|  | (✓) my-queue3    [1 msgs] |  |                           |  |                           |            |
-|  |     [Manage] [🗑]         |  |                           |  |                           |            |
-|  |   [+ Add to SQS Queues]   |  |   [+ Add to S3 Buckets]   |  |   [+ Add to DynamoDB]     |            |
-|  +---------------------------+  +---------------------------+  +---------------------------+            |
-|                                                                                                         |
-|  +---------------------------+  +---------------------------+  +---------------------------+            |
-|  | [SNS Topics]      0 items |  | [Secrets Manager] 0 items |  | [SSM Parameters]  0 items |            |
-|  |---------------------------|  |---------------------------|  |---------------------------|            |
-|  | No active SNS topics      |  | No active secrets         |  | No active SSM parameters  |            |
-|  |   [+ Add to SNS Topics]   |  |   [+ Add to Secrets]      |  |   [+ Add to SSM]          |            |
-|  +---------------------------+  +---------------------------+  +---------------------------+            |
-+---------------------------------------------------------------------------------------------------------+
-```
-
-* **Live Counters**: Cards display real-time message depths for SQS and record counts for DynamoDB.
-* **1-Click Creation**: Click `+ Add to <Service>` on any card to create new resources on demand.
-* **Deletion & Sync**: Deleting a resource removes it from LocalStack and optionally prunes it from `resources.yaml`.
-
----
-
-### 3.3. Pending Requests & 1-Click Provisioning
-
-When your application attempts to read or write to an AWS resource that does not yet exist:
-
-1. LocalStack returns a missing resource error.
-2. Companion captures the request, extracts the required service and resource name (e.g. queue `customer-alerts-queue`), and adds it to the **Pending Requests** badge.
-3. The developer can navigate to **Pending Requests** and click **"Provision & Add to YAML"**.
-4. The resource is immediately created in LocalStack and written into `resources.yaml`.
-5. Retrying the application request succeeds immediately.
-
-> [!TIP]
-> **Auto-Create Mode**: If you toggle **Auto-Create: ON** in the header, Companion will automatically provision missing resources on-the-fly without requiring manual approval, preventing local microservice startup crashes.
-
----
-
-### 3.4. Real-Time Traffic Inspector
+### 3.4. Traffic Inspector
 
 The **Traffic Inspector** tab provides a live streaming feed of all AWS API requests executed against the proxy:
-* **Method & Target Service**: Identifies whether a call was `sqs:SendMessage`, `s3:PutObject`, `dynamodb:GetItem`, etc.
-* **Resource Identifier**: Shows the exact bucket, queue, or table being targeted.
-* **Response Status & Latency**: Displays HTTP response codes and execution time in milliseconds.
-* **Payload Inspection**: View the raw request parameters and payloads sent by your application.
+* **Service & Action**: Identifies `sqs:SendMessage`, `s3:PutObject`, `dynamodb:GetItem`, `secretsmanager:GetSecretValue`, etc.
+* **Resource Identifier**: Shows the exact bucket, queue, or table targeted.
+* **Status & Latency**: Shows HTTP status codes (200, 400, 404, 500) and response times in milliseconds.
+* **Payload Inspection**: View headers and raw request bodies for rapid debugging.
 
 ---
 
 ### 3.5. Live YAML Configuration (`resources.yaml`)
 
-The **resources.yaml** tab in the UI embeds a live editor for the declarative configuration.
-* Any edits made in the editor can be saved and reconciled immediately.
-* When resources are added or modified through UI action modals, this file stays in perfect sync.
+The **resources.yaml** tab in the UI embeds a live editor for your declarative configuration:
 
 ```yaml
 version: "1.0"
@@ -154,16 +144,21 @@ services:
 
   sqs:
     queues:
-      - name: order-events-queue
+      - name: test-dge-transylvania-stream-status
         attributes:
           VisibilityTimeout: "30"
-          MessageRetentionPeriod: "86400"
+      - name: my-queue2
+        attributes:
+          VisibilityTimeout: "30"
+      - name: my-queue3
+        attributes:
+          VisibilityTimeout: "30"
 
   dynamodb:
     tables:
-      - tableName: users
+      - tableName: QuarkusFruits
         partitionKey:
-          name: userId
+          name: id
           type: S
         billingMode: PAY_PER_REQUEST
 
@@ -180,6 +175,8 @@ services:
         value: "true"
 ```
 
+* **Bi-directional Sync**: Changes made in the UI update `resources.yaml`, and edits made directly to `resources.yaml` reconcile immediately into LocalStack.
+
 ---
 
 ## 4. Getting Started
@@ -194,9 +191,9 @@ services:
 2. Open the Web UI:
    👉 **[http://localhost:4566/ui](http://localhost:4566/ui)** (or `http://localhost:8080`)
 
-### 4.2. Application Configuration Example (Spring Boot)
+### 4.2. Spring Boot Configuration Example
 
-Point your Spring Boot `application.yml` to the Companion endpoint at `http://localhost:4566`:
+In your Spring Boot `application.yml`, point all AWS service endpoints to port `4566`:
 
 ```yaml
 spring:
@@ -219,15 +216,15 @@ spring:
 
 ---
 
-## 5. Summary of Benefits
+## 5. Summary: Why Use LocalStack Companion?
 
-| Feature | Without Companion | With LocalStack Companion |
+| Workflow Aspect | Traditional LocalStack Setup | With LocalStack Companion |
 | :--- | :--- | :--- |
-| **Resource Bootstrap** | Custom shell scripts / `awslocal` commands | Declarative `resources.yaml` auto-sync on startup |
-| **Missing Resources** | Application crashes with 404 / `QueueDoesNotExist` | Intercepted with 1-click **"Provision & Add to YAML"** or **Auto-Create** |
-| **Data Testing & Injection** | Tedious CLI scripts for SQS send / S3 upload | Rich Web UI to push SQS messages, upload S3 files, scan DynamoDB |
-| **Visibility & Observability**| Black-box API requests | Live Traffic Inspector & resource item counters |
-| **Config Persistence** | Ephemeral or manual script updates | Bi-directional automatic sync with `resources.yaml` |
+| **Resource Setup** | Brittle `init.sh` scripts, manual CLI runs | Declarative `resources.yaml` with automatic reconciliation |
+| **Missing Resource Errors** | Spring Boot crashes on missing queues/tables | Intercepted in real-time with **1-click "Provision & Add to YAML"** |
+| **Testing & Mock Data** | Complex `awslocal` commands | Rich Web UI to push SQS messages, upload S3 files, scan tables |
+| **Observability** | Blind black-box API interactions | Live Traffic Inspector & resource item counters |
+| **Persistence** | Lost upon container recreation | Saved in `resources.yaml` for repeatable team setups |
 
 ---
 *LocalStack Companion — Empowering streamlined, observable, and resilient local cloud development.*
