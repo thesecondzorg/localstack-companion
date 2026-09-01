@@ -2,6 +2,8 @@
 
 An intelligent wrapper, reverse proxy, and real-time Web UI for **LocalStack** tailored for **Spring Boot & Cloud AWS** development.
 
+> 📖 **Looking for full documentation and visual walkthroughs? Check out the [LocalStack Companion Wiki](WIKI.md) ([docs/WIKI.md](docs/WIKI.md)).**
+
 ---
 
 ## Key Highlights
