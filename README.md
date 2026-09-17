@@ -188,20 +188,16 @@ A complete demo project is included in `sample-spring-app/`:
 
 ---
 
-## Local Development (Without Docker)
+## Local Development Mode
 
-1. Start LocalStack locally (e.g. on port `4567`):
-   ```bash
-   localstack start -p 4567:4566
-   ```
+Run the standalone backend with hot reload (automatically ensures LocalStack Core container is running on `:4567`):
 
-2. Start the Companion backend:
-   ```bash
-   ./run.sh local
-   ```
+```bash
+./run.sh local
+```
 
-3. (Optional) Run Vite frontend dev server with hot reload:
-   ```bash
-   cd frontend
-   npm run dev
-   ```
+*(Optional)* Run the Vite frontend dev server with hot reload:
+```bash
+cd frontend
+npm run dev
+```

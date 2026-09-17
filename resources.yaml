@@ -13,12 +13,6 @@ services:
       - name: test-dge-transylvania-stream-status
         attributes:
           VisibilityTimeout: '30'
-      - name: my-queue2
-        attributes:
-          VisibilityTimeout: '30'
-      - name: my-queue3
-        attributes:
-          VisibilityTimeout: '30'
   sns:
     topics: []
   dynamodb:

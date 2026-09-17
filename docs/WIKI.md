@@ -191,7 +191,20 @@ services:
 2. Open the Web UI:
    👉 **[http://localhost:4566/ui](http://localhost:4566/ui)** (or `http://localhost:8080`)
 
-### 4.2. Spring Boot Configuration Example
+### 4.2. Run in Standalone Local Mode (Backend Hot-Reload)
+
+Run the Python backend locally on port `4566` (automatically starts and verifies the LocalStack Core Docker container on `:4567` if not already running):
+
+```bash
+./run.sh local
+```
+
+*(Optional - run the Vite frontend development server with hot reload):*
+```bash
+cd frontend && npm run dev
+```
+
+### 4.3. Spring Boot Configuration Example
 
 In your Spring Boot `application.yml`, point all AWS service endpoints to port `4566`:
 
