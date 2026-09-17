@@ -181,15 +181,60 @@ services:
 
 ## 4. Getting Started
 
-### 4.1. Run with Docker Compose (Recommended)
+LocalStack Companion is published on **Docker Hub** as [`zorgzp/localstack-companion:latest`](https://hub.docker.com/r/zorgzp/localstack-companion). You can pull and run it directly without cloning or building from source:
 
-1. Start LocalStack and Companion:
-   ```bash
-   docker compose up --build
-   ```
+```bash
+docker pull zorgzp/localstack-companion:latest
+```
 
-2. Open the Web UI:
-   👉 **[http://localhost:4566/ui](http://localhost:4566/ui)** (or `http://localhost:8080`)
+### 4.1. Run with Docker Compose (Pre-built Image)
+
+Create a `docker-compose.yml` file using the published Docker Hub image:
+
+```yaml
+version: "3.8"
+
+services:
+  localstack:
+    image: localstack/localstack:3.4.0
+    container_name: localstack_core
+    ports:
+      - "4567:4566"
+    environment:
+      - ACTIVATE_PRO=0
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=eu-west-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+
+  companion:
+    image: zorgzp/localstack-companion:latest
+    container_name: localstack_companion
+    depends_on:
+      - localstack
+    ports:
+      - "4566:4566" # AWS proxy endpoint + Web UI at http://localhost:4566/ui
+      - "8080:4566" # Direct Web UI port at http://localhost:8080
+    environment:
+      - LOCALSTACK_URL=http://localstack:4566
+      - AWS_DEFAULT_REGION=eu-west-1
+      - CONFIG_PATH=/app/resources.yaml
+    volumes:
+      - ./resources.yaml:/app/resources.yaml
+
+volumes:
+  localstack_data:
+```
+
+Start the containers:
+```bash
+docker compose up -d
+```
+
+*(Or if you have cloned this repository and wish to build locally from source: `docker compose up --build` or `./run.sh`).*
+
+Open the Web UI:
+👉 **[http://localhost:4566/ui](http://localhost:4566/ui)** (or `http://localhost:8080`)
 
 ### 4.2. Run in Standalone Local Mode (Backend Hot-Reload)
 

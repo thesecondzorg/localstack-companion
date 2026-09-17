@@ -40,7 +40,19 @@ An intelligent wrapper, reverse proxy, and real-time Web UI for **LocalStack** t
 
 ## Quick Start with Docker Compose
 
-1. Clone or navigate to this repository:
+### Option A: Using Pre-built Docker Hub Image (No Build Needed)
+Pull and run directly with the pre-built image:
+```bash
+docker pull zorgzp/localstack-companion:latest
+```
+In your `docker-compose.yml`, you can simply specify:
+```yaml
+companion:
+  image: zorgzp/localstack-companion:latest
+```
+
+### Option B: Build from Source
+1. Clone and navigate to this repository:
    ```bash
    cd noble-davinci
    ```
